@@ -1,3 +1,6 @@
 #ignore .import files
 *.import
 /.import/*
+
+#macos metadata
+.DS_STORE
