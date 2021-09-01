@@ -122,7 +122,6 @@ func new_tilemap(tilemap_data, level):
 	
 	tilemap.tile_set = new_tileset(tilemap_data, tileset_data)
 	tilemap.name = tilemap_data.__identifier
-	tilemap.position = Vector2(level.worldX, level.worldY)
 	tilemap.cell_size = Vector2(tilemap_data.__gridSize, tilemap_data.__gridSize)
 	tilemap.modulate = Color(1,1,1, tilemap_data.__opacity)
 
@@ -249,7 +248,6 @@ func import_collisions(tilemap_data, level, options):
 	
 	var layer = StaticBody2D.new()
 	layer.name = 'CollisionsLayer'
-	layer.position = Vector2(level.worldX, level.worldY)
 	
 	var layer_width = tilemap_data.__cWid
 	var grid_size = tilemap_data.__gridSize
