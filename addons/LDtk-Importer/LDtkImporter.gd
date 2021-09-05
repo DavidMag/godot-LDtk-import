@@ -89,6 +89,7 @@ func import(source_file, save_path, options, platform_v, r_gen_files):
 		
 		new_level.name = level.identifier
 		new_level.room_size = Vector2(level.pxWid, level.pxHei)
+		new_level.level_offset = Vector2(level.worldX, level.worldY)
 		
 		#clear old generated nodes
 		for n in generated_content.get_children():
@@ -106,6 +107,8 @@ func import(source_file, save_path, options, platform_v, r_gen_files):
 				if not options.Import_Custom_Entities:
 					for grandchild in child.get_children():
 						grandchild.set_owner(new_level)
+		
+		set_owner_recursive(new_level, generated_content)
 		
 		new_scene.pack(new_level)
 		ResourceSaver.save("%s/%s-%s.%s" % [options.Scene_Save_Path, source_file.get_file().get_basename(), level.identifier, get_save_extension()], new_scene)
@@ -181,3 +184,10 @@ func get_main_scene(path):
 		return ResourceLoader.load(path).instance()
 	else:
 		return ResourceLoader.load("res://addons/LDtk-Importer/Scenes/Main.tscn").instance()
+
+func set_owner_recursive(owner, node):
+	if owner != node:
+		node.set_owner(owner)
+	
+	for child in node.get_children():
+		set_owner_recursive(owner, child)
