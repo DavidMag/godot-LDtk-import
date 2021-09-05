@@ -42,6 +42,9 @@ func new_entity(entity_data, level, options):
 	var new_entity
 	var metadata = []
 	
+	if entity_data.__identifier == "Door":
+		new_entity = ResourceLoader.load("res://addons/LDtk-Importer/Nodes/Door.gd").new()
+	
 	var is_custom_entity = false
 	if entity_data.fieldInstances:
 		for field in entity_data.fieldInstances:
@@ -73,29 +76,28 @@ func new_entity(entity_data, level, options):
 	else:
 		printerr("Could not load entity data: ", entity_data)
 		return
-
+	
 	if not new_entity:
 		return
-
+	
 	for data in metadata:
 		if data['name'] in new_entity:
 			new_entity[data['name']] = data['value']
 		else:
 			new_entity.set_meta(data['name'], data['value'])
-
+	
 	if is_custom_entity:
 		return new_entity
-
+	
 	match new_entity.get_class():
-		'Area2D', 'KinematicBody2D', 'RigidBody2D', 'StaticBody2D':
-			var col_shape = new_rectangle_collision_shape(get_entity_size(entity_data.__identifier))
+		'Area2D', 'KinematicBody2D', 'RigidBody2D', 'StaticBody2D', 'Door':
+			var col_shape = new_rectangle_collision_shape(Vector2(entity_data.width, entity_data.height))
 			new_entity.add_child(col_shape)
 
 	new_entity.name = entity_data.__identifier
-	new_entity.position = Vector2(entity_data.px[0] + level.worldX, entity_data.px[1] + level.worldY)
+	new_entity.position = Vector2(entity_data.px[0], entity_data.px[1])
 
 	return new_entity
-
 
 #create new RectangleShape2D
 func new_rectangle_collision_shape(size):
