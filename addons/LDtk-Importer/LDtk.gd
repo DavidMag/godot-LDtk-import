@@ -44,6 +44,8 @@ func new_entity(entity_data, level, options):
 	
 	if entity_data.__identifier == "Door":
 		new_entity = ResourceLoader.load("res://addons/LDtk-Importer/Nodes/Door.gd").new()
+		new_entity.collision_mask = options.Door_Collision_Mask
+		new_entity.collision_layer = options.Door_Collision_Mask 
 	
 	var is_custom_entity = false
 	if entity_data.fieldInstances:

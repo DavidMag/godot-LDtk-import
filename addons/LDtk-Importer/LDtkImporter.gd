@@ -56,6 +56,10 @@ func get_import_options(preset):
 			"default_value": preset == Presets.PRESET_COLLISIONS
 		},
 		{
+			"name": "Door_Collision_Mask",
+			"default_value": 1
+		},
+		{
 			"name": "Import_Custom_Entities",
 			"default_value": true,
 			"hint_string": "If true, will only use this project's scenes. If false, will import objects as simple scenes."
