@@ -13,13 +13,18 @@ export(String) var start_room: String
 # Scale the rooms to match other objects, such as player objects
 export(Vector2) var level_scale: Vector2
 
+# Room change fade duration
+export(float) var fade_duration: float = 0.5
+
+onready var queue := preload("res://addons/LDtk-Importer/Nodes/resourceQueue.gd").new()
+
 # Nodepath to the camera and if camera is in a child scene it'll try to find a Camera2D object in that scene named Camera2D.
 export(NodePath) var camera_nodepath: NodePath
 # Nodepath to player object
 export(NodePath) var player_nodepath: NodePath
 
-onready var queue := preload("res://addons/LDtk-Importer/Nodes/resourceQueue.gd").new()
-
+onready var curtain: ColorRect = get_node("CanvasLayer/Curtain")
+onready var curtain_fade_tween: Tween = get_node("FadeTween")
 var camera: Camera2D = null
 var player: Node2D = null
 
@@ -43,20 +48,37 @@ func _get_level_path(name: String) -> String:
 	return "%s%s%s" % [base_path, name, save_extension]
 
 func _enter_room(level, target_door, start: bool):
+	get_tree().paused = true
+	
 	var previous_level = current_level
 	if not start:
+		curtain_fade_tween.interpolate_property(curtain, "color", Color(0,0,0,0), Color.black, fade_duration, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
+		curtain_fade_tween.start()
+		yield(curtain_fade_tween, "tween_completed")
+		
 		var new_level = queue.get_resource(_get_level_path(level))
+		
 		if not new_level:
+			queue.queue_resource(_get_level_path(level), true)
+			
+			while not queue.is_ready(_get_level_path(level)):
+				yield(get_tree(), "idle_frame")
+			
 			new_level = queue.get_resource(_get_level_path(level))
 		
 		current_level = new_level.instance()
 	else:
 		current_level = ResourceLoader.load(_get_level_path(level)).instance()
 	
+	# Unpause while setting values to make sure they get set and shows correctly
+	get_tree().paused = false
+	
 	current_level.scale = level_scale
 	current_level.position = current_level.level_offset * level_scale
 	
-	add_child(current_level)
+	call_deferred("add_child", current_level)
+	
+	yield(get_tree(), "idle_frame")
 	
 	if previous_level:
 		previous_level.queue_free()
@@ -91,6 +113,16 @@ func _enter_room(level, target_door, start: bool):
 	for door in current_level.doors.get_children():
 		door.connect("door_entered", self, "door_entered")
 	
+	yield(get_tree(), "idle_frame")
+	get_tree().paused = true
+	
+	curtain_fade_tween.interpolate_property(curtain, "color", Color.black, Color(0,0,0,0), fade_duration, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
+	curtain_fade_tween.start()
+	
+	yield(curtain_fade_tween, "tween_completed")
+	
+	get_tree().paused = false
+
 func unload_level(level):
 	loaded_level_ids.erase(level)
 	queue.cancel_resource(_get_level_path(level))
