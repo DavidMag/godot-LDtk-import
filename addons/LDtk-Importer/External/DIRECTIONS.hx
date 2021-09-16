@@ -1,0 +1,6 @@
+enum DIRECTIONS {
+  LEFT;
+  TOP;
+  RIGHT;
+  BOTTOM;
+}
