@@ -128,6 +128,7 @@ func new_tilemap(tilemap_data, level):
 	tilemap.name = tilemap_data.__identifier
 	tilemap.cell_size = Vector2(tilemap_data.__gridSize, tilemap_data.__gridSize)
 	tilemap.modulate = Color(1,1,1, tilemap_data.__opacity)
+	tilemap.centered_textures = true
 
 	match tilemap_data.__type:
 		'Tiles':
